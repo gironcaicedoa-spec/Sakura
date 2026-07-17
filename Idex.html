@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sakura Premium | Asistente IA</title>
+    
+    <!-- Fuentes de Google -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Noto+Serif+JP:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome para Íconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuración personalizada de Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Noto Serif JP', 'serif'],
+                        mono: ['Courier New', 'monospace'], // Para la factura
+                    },
+                    colors: {
+                        sakura: {
+                            red: '#C8102E', // Rojo bandera Japón
+                            dark: '#0a0a0a',
+                            gray: '#1a1a1a',
+                            gold: '#D4AF37'
+                        }
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.4s ease-out forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(15px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Fondo con textura sutil */
+        body {
+            background-color: #050505;
+            background-image: radial-gradient(circle at 50% 0%, #1f1f1f 0%, #050505 70%);
+            color: #e5e5e5;
+            overflow: hidden; /* Previene scroll general, manejado internamente */
+        }
+
+        /* Scrollbar estilizado (Premium Dark) */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Efecto Glassmorphism */
+        .glass-panel {
+            background: rgba(26, 26, 26, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Estilos de Burbujas de Chat */
+        .msg-bot {
+            background: linear-gradient(135deg, #1c1c1c 0%, #262626 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px 20px 20px 4px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        
+        .msg-user {
+            background: linear-gradient(135deg, #C8102E 0%, #990c23 100%);
+            color: white;
+            border-radius: 20px 20px 4px 20px;
+            box-shadow: 0 4px 15px rgba(200,16,46,0.3);
+        }
+
+        /* Indicador de escritura animado */
+        .dot-flashing {
+            position: relative;
+            width: 6px;
+            height: 6px;
+            border-radius: 5px;
+            background-color: #C8102E;
+            color: #C8102E;
+            animation: dot-flashing 1s infinite linear alternate;
+            animation-delay: 0.5s;
+        }
+        .dot-flashing::before, .dot-flashing::after {
+            content: '';
+            display: inline-block;
+            position: absolute;
+            top: 0;
+        }
+        .dot-flashing::before {
+            left: -10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 5px;
+            background-color: #C8102E;
+            animation: dot-flashing 1s infinite alternate;
+            animation-delay: 0s;
+        }
+        .dot-flashing::after {
+            left: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 5px;
+            background-color: #C8102E;
+            animation: dot-flashing 1s infinite alternate;
+            animation-delay: 1s;
+        }
+        @keyframes dot-flashing {
+            0% { background-color: #C8102E; }
+            50%, 100% { background-color: rgba(200, 16, 46, 0.2); }
+        }
+
+        /* Diseño del Ticket / Factura simulando papel impreso */
+        .receipt-paper {
+            background-color: #fffdf5; /* Color crema de papel térmico */
+            color: #111;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        /* Borde dentado del ticket usando CSS gradients */
+        .receipt-paper::before, .receipt-paper::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background-size: 16px 16px;
+        }
+        .receipt-paper::before {
+            top: -8px;
+            background-image: radial-gradient(circle at 8px 0, transparent 8px, #fffdf5 9px);
+        }
+        .receipt-paper::after {
+            bottom: -8px;
+            background-image: radial-gradient(circle at 8px 16px, transparent 8px, #fffdf5 9px);
+        }
+
+        /* Input luminoso al hacer focus */
+        .input-glow:focus-within {
+            box-shadow: 0 0 20px rgba(200, 16, 46, 0.2);
+            border-color: rgba(200, 16, 46, 0.5);
+        }
+    </style>
+</head>
+
+<body class="h-screen w-full flex flex-col md:flex-row antialiased selection:bg-sakura-red selection:text-white">
+
+    <!-- Sección Principal: Chatbot -->
+    <div class="flex-1 flex flex-col h-full relative z-10">
+        
+        <!-- Header Elegante -->
+        <header class="glass-panel px-6 py-4 flex items-center justify-between border-b border-white/5 z-20">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-sakura-red to-red-900 p-0.5 shadow-lg shadow-sakura-red/20">
+                    <div class="w-full h-full bg-sakura-dark rounded-full flex items-center justify-center">
+                        <i class="fa-solid fa-fan text-sakura-gold text-xl animate-[spin_10s_linear_infinite]"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-serif text-xl font-bold tracking-wider text-white">SAKURA <span class="text-sakura-red">桜</span></h1>
+                    <p class="text-xs text-gray-400 font-light flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                        Asistente Culinario IA
+                    </p>
+                </div>
+            </div>
+            
+            <div class="hidden md:flex flex-col items-end text-xs text-gray-400">
+                <p><i class="fa-solid fa-location-dot text-sakura-red mr-1"></i> Sede Central: Centro</p>
+                <p><i class="fa-solid fa-store mr-1"></i> Norte: Plaza Norte</p>
+            </div>
+
+            <!-- Botón toggle carrito en móvil -->
+            <button id="btn-toggle-cart" class="md:hidden relative p-3 bg-sakura-gray rounded-xl text-white hover:text-sakura-gold transition-colors">
+                <i class="fa-solid fa-bag-shopping text-xl"></i>
+                <span id="cart-badge" class="absolute -top-1 -right-1 bg-sakura-red text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden border border-sakura-dark">0</span>
+            </button>
+        </header>
+
+        <!-- Área de Mensajes -->
+        <main id="chat-container" class="flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth relative">
+            <!-- Marca de agua decorativa en el fondo -->
+            <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
+                <i class="fa-brands fa-pagelines text-[20rem]"></i>
+            </div>
+            
+            <div id="chat-messages" class="relative z-10 w-full max-w-4xl mx-auto space-y-6 pb-4">
+                <!-- Los mensajes se inyectan aquí -->
+            </div>
+            
+            <!-- Indicador de "Escribiendo..." -->
+            <div id="typing-indicator" class="hidden relative z-10 w-full max-w-4xl mx-auto">
+                <div class="flex w-full justify-start">
+                    <div class="msg-bot py-4 px-6 flex items-center gap-4">
+                        <div class="w-6 h-6 rounded-full bg-sakura-red/20 flex items-center justify-center">
+                            <i class="fa-solid fa-robot text-xs text-sakura-red"></i>
+                        </div>
+                        <div class="ml-4 mr-2">
+                            <div class="dot-flashing"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer / Área de Input -->
+        <footer class="p-4 md:p-6 bg-gradient-to-t from-[#050505] to-transparent shrink-0">
+            <div class="max-w-4xl mx-auto">
+                <form id="chat-form" class="relative flex items-center glass-panel rounded-2xl input-glow transition-all duration-300">
+                    <button type="button" class="p-4 text-gray-500 hover:text-sakura-gold transition-colors focus:outline-none" title="Ver Menú" id="btn-quick-menu">
+                        <i class="fa-solid fa-bars-staggered"></i>
+                    </button>
+                    
+                    <input type="text" id="user-input" autocomplete="off" placeholder="Escribe tu pedido, pide el menú o factura..." 
+                           class="flex-1 bg-transparent text-white px-2 py-4 focus:outline-none font-light placeholder-gray-500 w-full">
+                    
+                    <button type="submit" id="btn-send"
+                            class="m-2 bg-sakura-red text-white w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center hover:bg-red-700 transition-all shadow-[0_0_15px_rgba(200,16,46,0.4)] disabled:opacity-50 disabled:cursor-not-allowed group">
+                        <i class="fa-solid fa-paper-plane group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
+                    </button>
+                </form>
+                <div class="text-center mt-3 flex justify-center gap-4 text-[10px] md:text-xs text-gray-500 font-mono">
+                    <span><i class="fa-solid fa-shield-halved mr-1"></i> IA Segura</span>
+                    <span><i class="fa-solid fa-bolt mr-1"></i> Respuestas Rápidas</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Sección Secundaria: Carrito (Sidebar) -->
+    <aside id="cart-sidebar" class="w-full md:w-96 glass-panel border-l border-white/5 h-full flex flex-col absolute md:relative right-0 transform translate-x-full md:translate-x-0 transition-transform duration-400 ease-[cubic-bezier(0.16,1,0.3,1)] z-50">
+        
+        <!-- Header del Carrito -->
+        <div class="p-6 border-b border-white/5 flex justify-between items-center shrink-0">
+            <h2 class="font-serif text-xl font-bold text-white flex items-center gap-3">
+                <i class="fa-solid fa-bag-shopping text-sakura-gold"></i>
+                Tu Orden
+            </h2>
+            <button id="btn-close-cart" class="md:hidden text-gray-400 hover:text-white bg-white/5 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Contenedor de Items -->
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <!-- Estado Vacío -->
+            <div id="empty-cart-state" class="h-full flex flex-col items-center justify-center text-center opacity-50 p-6">
+                <div class="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+                    <i class="fa-solid fa-bowl-food text-3xl text-gray-400"></i>
+                </div>
+                <p class="font-serif text-lg text-gray-300">Orden Vacía</p>
+                <p class="text-xs text-gray-500 mt-2 font-light">Comienza pidiéndole algo delicioso al asistente IA.</p>
+            </div>
+            <!-- Items dinámicos van aquí -->
+        </div>
+
+        <!-- Resumen de Pago -->
+        <div class="p-6 border-t border-white/5 bg-[#0a0a0a] shrink-0">
+            <div class="space-y-3 mb-6 font-light text-sm">
+                <div class="flex justify-between text-gray-400">
+                    <span>Subtotal</span>
+                    <span id="txt-subtotal" class="font-mono text-white">$0.00</span>
+                </div>
+                <div class="flex justify-between text-gray-400">
+                    <span>IVA (12%)</span>
+                    <span id="txt-tax" class="font-mono text-white">$0.00</span>
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-white/10">
+                    <span class="font-serif text-lg text-white">Total</span>
+                    <span id="txt-total" class="font-mono text-2xl text-sakura-gold font-bold">$0.00</span>
+                </div>
+            </div>
+            
+            <button id="btn-checkout" class="w-full bg-gradient-to-r from-sakura-gold to-yellow-600 text-[#111] font-bold py-4 px-4 rounded-xl shadow-[0_0_20px_rgba(212,175,55,0.2)] hover:shadow-[0_0_25px_rgba(212,175,55,0.4)] hover:brightness-110 transition-all flex justify-center items-center gap-2 opacity-50 cursor-not-allowed disabled:hover:shadow-none disabled:hover:brightness-100" disabled>
+                <i class="fa-solid fa-file-invoice"></i>
+                Finalizar y Pedir Factura
+            </button>
+        </div>
+    </aside>
+
+    <!-- Overlay oscuro para móvil al abrir carrito -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden md:hidden opacity-0 transition-opacity duration-300"></div>
+
+    <!-- Modal de Factura -->
+    <div id="invoice-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <!-- Fondo Blur -->
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" id="invoice-backdrop"></div>
+        
+        <!-- Ticket -->
+        <div class="receipt-paper w-full max-w-sm rounded-none z-10 animate-fade-in-up my-4 py-8 px-6 overflow-y-auto max-h-[90vh]">
+            
+            <!-- Encabezado Ticket -->
+            <div class="text-center mb-6">
+                <div class="mx-auto w-12 h-12 border-2 border-black rounded-full flex items-center justify-center mb-2">
+                    <i class="fa-solid fa-fan text-2xl"></i>
+                </div>
+                <h2 class="font-serif text-2xl font-bold tracking-widest uppercase">SAKURA</h2>
+                <p class="text-xs font-mono tracking-widest mb-1 border-b border-black/20 pb-2">JAPANESE CUISINE</p>
+                <p class="font-mono text-[10px] mt-2">Av. Principal #123, Centro</p>
+                <p class="font-mono text-[10px]">Telf: 099-123-4567</p>
+            </div>
+
+            <!-- Datos Cliente -->
+            <div class="font-mono text-xs border-y border-dashed border-black py-3 mb-4 space-y-1" id="invoice-customer-details">
+                <!-- Se llena por JS -->
+            </div>
+
+            <!-- Items -->
+            <div class="font-mono text-xs mb-4">
+                <div class="flex justify-between font-bold border-b border-black pb-1 mb-2">
+                    <span>CANT  DESCRIPCIÓN</span>
+                    <span>TOTAL</span>
+                </div>
+                <div id="invoice-items" class="space-y-1">
+                    <!-- Se llena por JS -->
+                </div>
+            </div>
+
+            <!-- Totales -->
+            <div class="font-mono text-xs border-t border-black pt-2 space-y-1">
+                <div class="flex justify-between">
+                    <span>SUBTOTAL</span>
+                    <span id="inv-subtotal"></span>
+                </div>
+                <div class="flex justify-between">
+                    <span>IVA (12%)</span>
+                    <span id="inv-tax"></span>
+                </div>
+                <div class="flex justify-between text-sm font-bold mt-2 pt-2 border-t border-dashed border-black">
+                    <span>TOTAL A PAGAR</span>
+                    <span id="inv-total"></span>
+                </div>
+            </div>
+
+            <!-- Footer Ticket -->
+            <div class="text-center font-mono text-[10px] mt-8">
+                <p>¡Arigato gozaimasu!</p>
+                <p>Gracias por su compra</p>
+                <div class="mt-4 barcode flex justify-center text-3xl font-bold opacity-30">
+                    |||| || ||| || ||| |||
+                </div>
+                <p class="mt-1" id="inv-date"></p>
+            </div>
+            
+            <!-- Botones Flotantes del Ticket -->
+            <div class="mt-8 flex justify-between gap-4 font-sans no-print">
+                <button id="btn-close-invoice" class="flex-1 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors text-sm">
+                    Cerrar
+                </button>
+                <button onclick="window.print()" class="flex-1 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors text-sm flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-print"></i> Imprimir
+                </button>
+            </div>
+            <style>
+                @media print {
+                    body * { visibility: hidden; }
+                    .receipt-paper, .receipt-paper * { visibility: visible; }
+                    .receipt-paper { position: absolute; left: 0; top: 0; box-shadow: none; max-width: 100%; width: 100%; }
+                    .no-print { display: none !important; }
+                }
+            </style>
+        </div>
+    </div>
+
+
+    <script>
+        // --- 1. DATOS Y CONSTANTES ---
+        const RESTAURANT = {
+            name: "Sakura Premium",
+            branches: [
+                "Sede Central: Av. Principal #123, Centro",
+                "Sucursal Norte: Plaza Norte, Local 5"
+            ],
+            phone: "099-123-4567"
+        };
+
+        const MENU = [
+            { id: "m1", name: "Premium Dragon Roll", price: 14.50, category: "Sushi", desc: "Anguila, aguacate, pepino, salsa tare, oro comestible." },
+            { id: "m2", name: "Sashimi Moriawase", price: 22.00, category: "Sushi", desc: "Selección del chef de 12 cortes de pescado premium." },
+            { id: "m3", name: "Spicy Tuna Crispy", price: 11.00, category: "Sushi", desc: "Atún picante sobre base de arroz crujiente." },
+            { id: "m4", name: "Ramen Kurobuta Tonkotsu", price: 16.50, category: "Sopa", desc: "Caldo de cerdo negro hervido 24h, chashu derretido, huevo." },
+            { id: "m5", name: "Truffle Shoyu Ramen", price: 15.00, category: "Sopa", desc: "Caldo claro, aceite de trufa blanca, pollo sous-vide." },
+            { id: "m6", name: "Wagyu A5 Ishiyaki", price: 45.00, category: "Plato Fuerte", desc: "Carne Wagyu A5 servida en piedra caliente (150g)." },
+            { id: "m7", name: "Gyozas de Pato", price: 9.50, category: "Entrada", desc: "Empanadillas rellenas de pato confitado (5 uds)." },
+            { id: "m8", name: "Matcha Tiramisu", price: 8.00, category: "Postre", desc: "Tiramisu tradicional con té verde matcha ceremonial." },
+            { id: "m9", name: "Sake Junmai Daiginjo", price: 18.00, category: "Bebida", desc: "Sake premium servido frío (Copa)." },
+            { id: "m10", name: "Té Verde Sencha", price: 4.50, category: "Bebida", desc: "Té verde japonés en tetera de hierro." }
+        ];
+
+        // --- 2. ESTADO GLOBLAL ---
+        let chatHistory = [];
+        let cart = [];
+        let customer = {
+            name: "",
+            idNumber: "",
+            phone: "",
+            address: ""
+        };
+
+        // --- 3. ELEMENTOS DOM ---
+        const DOM = {
+            chatContainer: document.getElementById('chat-container'),
+            chatMessages: document.getElementById('chat-messages'),
+            chatForm: document.getElementById('chat-form'),
+            userInput: document.getElementById('user-input'),
+            btnSend: document.getElementById('btn-send'),
+            typingInd: document.getElementById('typing-indicator'),
+            btnQuickMenu: document.getElementById('btn-quick-menu'),
+            
+            // Sidebar Carrito
+            cartSidebar: document.getElementById('cart-sidebar'),
+            btnToggleCart: document.getElementById('btn-toggle-cart'),
+            btnCloseCart: document.getElementById('btn-close-cart'),
+            cartOverlay: document.getElementById('cart-overlay'),
+            cartBadge: document.getElementById('cart-badge'),
+            cartItems: document.getElementById('cart-items-container'),
+            emptyState: document.getElementById('empty-cart-state'),
+            
+            // Totales
+            subtotal: document.getElementById('txt-subtotal'),
+            tax: document.getElementById('txt-tax'),
+            total: document.getElementById('txt-total'),
+            btnCheckout: document.getElementById('btn-checkout'),
+
+            // Factura
+            modalInvoice: document.getElementById('invoice-modal'),
+            btnCloseInvoice: document.getElementById('btn-close-invoice'),
+        };
+
+        // --- STREAMING_CHUNK:Funciones de Utilidad de UI (Chat y Formato)... ---
+        function formatMoney(amount) {
+            return `$${amount.toFixed(2)}`;
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                DOM.chatContainer.scrollTop = DOM.chatContainer.scrollHeight;
+            }, 100);
+        }
+
+        function escapeHTML(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function formatBotText(text) {
+            // Convierte negritas y saltos de línea para HTML
+            return escapeHTML(text)
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white">$1</strong>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function addMessage(text, isUser = false) {
+            const div = document.createElement('div');
+            div.className = `flex w-full animate-fade-in-up ${isUser ? 'justify-end' : 'justify-start'}`;
+            
+            if (isUser) {
+                div.innerHTML = `
+                    <div class="msg-user py-3 px-5 max-w-[85%] md:max-w-[75%] font-light text-sm md:text-base">
+                        ${escapeHTML(text)}
+                    </div>
+                `;
+            } else {
+                div.innerHTML = `
+                    <div class="msg-bot py-4 px-5 max-w-[90%] md:max-w-[80%] flex items-start gap-3 md:gap-4 font-light text-gray-300 text-sm md:text-base">
+                        <div class="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-sakura-red to-red-900 flex items-center justify-center shadow-lg mt-1">
+                            <i class="fa-solid fa-robot text-xs text-white"></i>
+                        </div>
+                        <div class="leading-relaxed flex-1">
+                            ${formatBotText(text)}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            DOM.chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function setTyping(status) {
+            DOM.typingInd.style.display = status ? 'block' : 'none';
+            DOM.btnSend.disabled = status;
+            DOM.userInput.disabled = status;
+            if (status) scrollToBottom();
+        }
+
+        // --- STREAMING_CHUNK:Gestión del Carrito de Compras... ---
+        window.updateQuantity = function(id, delta) {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.quantity += delta;
+                if (item.quantity <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+                renderCart();
+            }
+        };
+
+        function renderCart() {
+            DOM.cartItems.innerHTML = '';
+            let subtotal = 0;
+            let totalItems = 0;
+
+            if (cart.length === 0) {
+                DOM.cartItems.appendChild(DOM.emptyState);
+                DOM.emptyState.classList.remove('hidden');
+                DOM.btnCheckout.disabled = true;
+                DOM.btnCheckout.classList.add('opacity-50', 'cursor-not-allowed');
+                DOM.cartBadge.classList.add('hidden');
+            } else {
+                DOM.emptyState.classList.add('hidden');
+                DOM.btnCheckout.disabled = false;
+                DOM.btnCheckout.classList.remove('opacity-50', 'cursor-not-allowed');
+                
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.quantity;
+                    subtotal += itemTotal;
+                    totalItems += item.quantity;
+
+                    const el = document.createElement('div');
+                    el.className = 'bg-white/5 border border-white/5 rounded-xl p-3 flex justify-between items-center relative overflow-hidden group';
+                    el.innerHTML = `
+                        <!-- Efecto hover sutil -->
+                        <div class="absolute inset-0 bg-gradient-to-r from-sakura-red/0 to-sakura-red/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        
+                        <div class="flex-1 pr-2 relative z-10">
+                            <h4 class="font-semibold text-white text-sm">${item.name}</h4>
+                            <p class="text-xs text-sakura-gold mt-0.5">${formatMoney(item.price)}</p>
+                        </div>
+                        
+                        <div class="flex items-center gap-3 relative z-10 bg-black/40 rounded-lg p-1 border border-white/5">
+                            <button onclick="updateQuantity('${item.id}', -1)" class="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                <i class="fa-solid fa-minus text-[10px]"></i>
+                            </button>
+                            <span class="font-mono text-white text-sm w-4 text-center">${item.quantity}</span>
+                            <button onclick="updateQuantity('${item.id}', 1)" class="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-white hover:bg-white/10 transition-colors">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                            </button>
+                        </div>
+                    `;
+                    DOM.cartItems.appendChild(el);
+                });
+
+                DOM.cartBadge.textContent = totalItems;
+                DOM.cartBadge.classList.remove('hidden');
+            }
+
+            const tax = subtotal * 0.12;
+            const total = subtotal + tax;
+
+            DOM.subtotal.textContent = formatMoney(subtotal);
+            DOM.tax.textContent = formatMoney(tax);
+            DOM.total.textContent = formatMoney(total);
+        }
+
+        // Lógica de manipulación llamada por la IA
+        function processCartAction(action, itemName, quantity) {
+            // Búsqueda flexible ignorando mayúsculas y acentos simples
+            const query = itemName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            const menuItem = MENU.find(m => {
+                const normalizedName = m.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                return normalizedName.includes(query);
+            });
+
+            if (!menuItem) {
+                console.warn(`IA intentó modificar item no encontrado: ${itemName}`);
+                return;
+            }
+
+            if (action === 'add') {
+                const existing = cart.find(i => i.id === menuItem.id);
+                if (existing) {
+                    existing.quantity += quantity;
+                } else {
+                    cart.push({ ...menuItem, quantity: quantity });
+                }
+            } else if (action === 'remove') {
+                const index = cart.findIndex(i => i.id === menuItem.id);
+                if (index !== -1) {
+                    if(quantity >= cart[index].quantity){
+                        cart.splice(index, 1);
+                    } else {
+                        cart[index].quantity -= quantity;
+                    }
+                }
+            }
+            renderCart();
+        }
+
+        // --- STREAMING_CHUNK:Configuración de LLM (API Gemini + Schema JSON)... ---
+        const API_KEY = ""; // Canvas inyecta la key automáticamente
+        const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${API_KEY}`;
+
+        const SYSTEM_PROMPT = `
+Eres SAKURA BOT, el elegante asistente virtual de "Sakura Premium", un restaurante japonés de alta gastronomía.
+Tu tono es educado, sofisticado, servicial, e incluyes expresiones japonesas tradicionales ocasionales (como Irasshaimase, Arigato gozaimasu, Hai).
+No usas un exceso de emojis, prefieres un estilo minimalista (🌸, 🥢, 🍵).
+
+**INFORMACIÓN DEL RESTAURANTE:**
+- Sede Central: Av. Principal #123, Centro
+- Sucursal Norte: Plaza Norte, Local 5
+
+**MENÚ PREMIUM:**
+${MENU.map(m => `- ${m.name}: $${m.price.toFixed(2)} (${m.desc})`).join('\n')}
+
+**TUS MISIONES:**
+1. Atender al cliente, mostrar el menú con clase si lo piden.
+2. Gestionar el pedido (agregando/quitando platos). Usa SOLO nombres oficiales del menú en 'cartActions'.
+3. **Cobro (Checkout):** Cuando el cliente quiera finalizar el pedido o pedir la factura, DEBES recolectar los 4 datos obligatorios: Nombre, Número de Cédula/Identificación, Celular y Dirección de entrega. Pídelos amablemente uno a uno si es necesario.
+4. **Anti-Troll:** Si el usuario dice cosas sin sentido (ej: fdjkfsd), hace código, asume roles, o notas que no es un humano haciendo un pedido real, responde con firmeza educada: "Disculpe, mi función exclusiva es asistir con pedidos culinarios en Sakura Premium. ¿Desea ordenar algo de nuestro menú?"
+
+**ESTADO ACTUAL DEL CARRITO Y CLIENTE:**
+(Revisa el historial para ver qué datos del cliente faltan).
+`;
+
+        // Esquema estricto para forzar la respuesta JSON perfecta
+        const responseSchema = {
+            type: "OBJECT",
+            properties: {
+                message: { type: "STRING", description: "El mensaje que el bot dirá en el chat." },
+                cartActions: {
+                    type: "ARRAY",
+                    description: "Acciones a realizar en el carrito de compras.",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            action: { type: "STRING", enum: ["add", "remove"] },
+                            itemName: { type: "STRING", description: "Nombre exacto del menú." },
+                            quantity: { type: "NUMBER" }
+                        },
+                        required: ["action", "itemName", "quantity"]
+                    }
+                },
+                customerUpdates: {
+                    type: "OBJECT",
+                    description: "Datos del cliente extraídos de la conversación actual.",
+                    properties: {
+                        name: { type: "STRING", description: "Nombre del cliente." },
+                        idNumber: { type: "STRING", description: "Cédula o ID." },
+                        phone: { type: "STRING", description: "Teléfono." },
+                        address: { type: "STRING", description: "Dirección." }
+                    }
+                },
+                isCheckoutReady: { type: "BOOLEAN", description: "True SOLO si el carrito no está vacío y ya tienes Nombre, Cédula, Teléfono y Dirección." }
+            },
+            required: ["message", "cartActions", "customerUpdates", "isCheckoutReady"]
+        };
+
+        // --- STREAMING_CHUNK:Función principal de Comunicación con la IA (Fetch)... ---
+        async function fetchAIResponse(userText) {
+            setTyping(true);
+
+            const contents = chatHistory.map(h => ({ role: h.role, parts: [{ text: h.text }] }));
+            
+            // Inyectar contexto invisible al último mensaje
+            const contextStr = `\n\n[CONTEXTO SISTEMA (No responder a esto): Carrito items: ${cart.length}. Datos guardados -> Nombre: ${customer.name||'NO'}, Cédula: ${customer.idNumber||'NO'}, Telf: ${customer.phone||'NO'}, Dir: ${customer.address||'NO'}. Si falta algún dato y quiere pagar, pídelo.]`;
+            
+            contents.push({ role: "user", parts: [{ text: userText + contextStr }] });
+
+            const payload = {
+                contents: contents,
+                systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: responseSchema
+                }
+            };
+
+            try {
+                // Exponential Backoff
+                let res;
+                let retries = 3;
+                let delay = 1000;
+                while (retries > 0) {
+                    res = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (res.ok) break;
+                    // Reintentar si hay demasiadas peticiones (429) o errores del servidor (500+)
+                    if (res.status === 429 || res.status >= 500) {
+                        retries--;
+                        if (retries === 0) break;
+                        await new Promise(r => setTimeout(r, delay));
+                        delay *= 2;
+                    } else {
+                        throw new Error(`Error API: ${res.status}`);
+                    }
+                }
+
+                if (!res || !res.ok) throw new Error("Fallo la petición a la API");
+
+                const data = await res.json();
+                if (data.candidates && data.candidates[0].content) {
+                    let rawText = data.candidates[0].content.parts[0].text;
+                    
+                    // LIMPIEZA DE FORMATO: Evita que la IA rompa el código si usa markdown (```json)
+                    rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+                    
+                    const jsonRes = JSON.parse(rawText);
+                    handleAIResponse(jsonRes, userText);
+                }
+
+            } catch (err) {
+                console.error("Error en el procesamiento del bot:", err);
+                addMessage("Hubo una pequeña interrupción en la señal. ¿Podrías enviarme tu último mensaje nuevamente, por favor? 🙇‍♂️");
+            } finally {
+                setTyping(false);
+                DOM.userInput.focus();
+            }
+        }
+
+        // --- STREAMING_CHUNK:Procesamiento de Respuesta y Lógica de Factura... ---
+        function handleAIResponse(response, originalUserText) {
+            // Guardar historial limpio
+            chatHistory.push({ role: "user", text: originalUserText });
+            chatHistory.push({ role: "model", text: response.message });
+
+            // 1. Mostrar Mensaje
+            addMessage(response.message);
+
+            // 2. Modificar Carrito
+            if (response.cartActions) {
+                response.cartActions.forEach(act => {
+                    processCartAction(act.action, act.itemName, act.quantity);
+                });
+            }
+
+            // 3. Actualizar Cliente
+            if (response.customerUpdates) {
+                if (response.customerUpdates.name) customer.name = response.customerUpdates.name;
+                if (response.customerUpdates.idNumber) customer.idNumber = response.customerUpdates.idNumber;
+                if (response.customerUpdates.phone) customer.phone = response.customerUpdates.phone;
+                if (response.customerUpdates.address) customer.address = response.customerUpdates.address;
+            }
+
+            // 4. Chequear Checkout
+            if (response.isCheckoutReady && cart.length > 0 && customer.name && customer.idNumber && customer.address && customer.phone) {
+                setTimeout(showInvoice, 2000); // Mostrar factura después de 2s para que lea el mensaje
+            }
+        }
+
+        function showInvoice() {
+            // Llenar datos cliente
+            const cDetails = document.getElementById('invoice-customer-details');
+            cDetails.innerHTML = `
+                <div class="flex justify-between"><span>CLIENTE:</span> <span class="uppercase text-right truncate w-3/4">${customer.name}</span></div>
+                <div class="flex justify-between"><span>C.I/RUC:</span> <span>${customer.idNumber}</span></div>
+                <div class="flex justify-between"><span>TELF:</span> <span>${customer.phone}</span></div>
+                <div class="flex justify-between"><span>DIR:</span> <span class="text-right truncate w-3/4">${customer.address}</span></div>
+            `;
+
+            // Llenar items
+            const iDetails = document.getElementById('invoice-items');
+            iDetails.innerHTML = '';
+            let sub = 0;
+            cart.forEach(item => {
+                const tot = item.price * item.quantity;
+                sub += tot;
+                iDetails.innerHTML += `
+                    <div class="flex justify-between items-start">
+                        <span class="w-2/3 break-words">${item.quantity}x ${item.name.toUpperCase()}</span>
+                        <span>${formatMoney(tot)}</span>
+                    </div>
+                `;
+            });
+
+            // Llenar totales
+            const tax = sub * 0.12;
+            const total = sub + tax;
+            document.getElementById('inv-subtotal').textContent = formatMoney(sub);
+            document.getElementById('inv-tax').textContent = formatMoney(tax);
+            document.getElementById('inv-total').textContent = formatMoney(total);
+
+            // Fecha
+            const d = new Date();
+            document.getElementById('inv-date').textContent = `${d.toLocaleDateString()} ${d.toLocaleTimeString()}`;
+
+            // Mostrar
+            DOM.modalInvoice.classList.remove('hidden');
+        }
+
+        // --- STREAMING_CHUNK:Event Listeners e Inicialización... ---
+        
+        // Manejo de Interfaz Móvil para el Carrito
+        DOM.btnToggleCart.addEventListener('click', () => {
+            DOM.cartSidebar.classList.remove('translate-x-full');
+            DOM.cartOverlay.classList.remove('hidden');
+            setTimeout(() => DOM.cartOverlay.classList.remove('opacity-0'), 10);
+        });
+
+        const closeMobileCart = () => {
+            DOM.cartSidebar.classList.add('translate-x-full');
+            DOM.cartOverlay.classList.add('opacity-0');
+            setTimeout(() => DOM.cartOverlay.classList.add('hidden'), 300);
+        };
+        
+        DOM.btnCloseCart.addEventListener('click', closeMobileCart);
+        DOM.cartOverlay.addEventListener('click', closeMobileCart);
+
+        // Enviar Chat
+        DOM.chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = DOM.userInput.value.trim();
+            if (!text) return;
+            
+            addMessage(text, true);
+            DOM.userInput.value = '';
+            fetchAIResponse(text);
+        });
+
+        // Botón Ver Menú Rápido
+        DOM.btnQuickMenu.addEventListener('click', () => {
+            const text = "Me gustaría ver el menú por favor.";
+            addMessage(text, true);
+            fetchAIResponse(text);
+        });
+
+        // Botón Checkout Manual
+        DOM.btnCheckout.addEventListener('click', () => {
+            if (cart.length === 0) return;
+            const text = "He terminado de pedir, quiero pagar y solicitar mi factura por favor.";
+            addMessage(text, true);
+            fetchAIResponse(text);
+        });
+
+        // Cerrar Factura
+        DOM.btnCloseInvoice.addEventListener('click', () => {
+            DOM.modalInvoice.classList.add('hidden');
+        });
+
+        // Inicio
+        window.onload = () => {
+            const initMsg = "Irasshaimase (Bienvenido) a Sakura Premium 🌸. Soy tu asistente culinario de IA. ¿Deseas explorar nuestra carta o sabes ya lo que vas a degustar hoy?";
+            chatHistory.push({ role: "model", text: initMsg });
+            addMessage(initMsg, false);
+            renderCart();
+        };
+
+    </script>
+</body>
+</html>
